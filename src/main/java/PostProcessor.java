@@ -15,7 +15,7 @@ public class PostProcessor {
     private static final String PREFIX1 = "@RELATION nounpair\n\n";
     private static final String PREFIX2 = "@RELATION nounpair\n\n@ATTRIBUTE nounPair STRING\n";
     private static final String POSTFIX = "@ATTRIBUTE ans {true, false}\n\n@DATA\n";
-    private static final String BUCKET_NAME = "dsp3maorrocky";
+    private static final String BUCKET_NAME = "dsps3maorrocky";
 
     public static void main(String[] args) throws IOException {
         if (!args[0].equals("local") && !args[0].equals("emr")) {

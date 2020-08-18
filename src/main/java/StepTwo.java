@@ -50,7 +50,7 @@ public class StepTwo {
                 AmazonS3 s3 = new AmazonS3Client();
                 Region usEast1 = Region.getRegion(Regions.US_EAST_1);
                 s3.setRegion(usEast1);
-                S3Object object = s3.getObject(new GetObjectRequest("dsp3maorrocky", "resource/paths.txt"));
+                S3Object object = s3.getObject(new GetObjectRequest("dsps3maorrocky", "resource/paths.txt"));
                 bufferedReader = new BufferedReader(new InputStreamReader(object.getObjectContent()));
             }
             java.nio.file.Path path = Paths.get("resource");
@@ -101,7 +101,7 @@ public class StepTwo {
     public static class Reducer2 extends Reducer<Text, WritableLongPair, Text, Text> {
 
         private HashMap<String, Boolean> testSet;
-        private final String BUCKET = "dsp3maorrocky";
+        private final String BUCKET = "dsps3maorrocky";
         private final String HYPERNYM_LIST = "resource/hypernym.txt";
         private final String NUM_OF_FEATURES_FILE = "resource/numOfFeatures.txt";
         private long numOfFeatures;

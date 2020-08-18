@@ -30,11 +30,9 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class StepOne {
 
 
-    public static class Mapper1 extends Mapper<LongWritable, Text, Text, Text> {
-        private Stemmer stemmer;
+    public static class myMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         public void setup(Context context) throws IOException, InterruptedException {
-            stemmer = new Stemmer();
         }
 
         /**
@@ -57,7 +55,6 @@ public class StepOne {
             if (nodes == null)
                 return;
             Node root = constructParsedTree(nodes);
-//            printTree(root);
             searchDependencyPath(root, "", root, context);
         }
 
@@ -82,7 +79,7 @@ public class StepOne {
                 ngramEntryComponents[1] = ngramEntryComponents[1].replaceAll(REGEX, "");
                 if (ngramEntryComponents[1].replaceAll(REGEX, "").equals(""))
                     return null;
-                partsAsNodes[i] = new Node(ngramEntryComponents, stemmer);
+                partsAsNodes[i] = new Node(ngramEntryComponents);
             }
             return partsAsNodes;
         }
@@ -111,10 +108,10 @@ public class StepOne {
          * @param acc       an accumulator that holds the shortest path so far as a String.
          * @param pathStart the first node of the noun pair.
          * @param context   the Map-Reduce job context.
-         * @a a is: NN:IN:NN
-         * @b b is: c$reason
          * @throws IOException
          * @throws InterruptedException
+         * @a a is: NN:IN:NN
+         * @b b is: c$reason
          */
         private void searchDependencyPath(Node node, String acc, Node pathStart, Context context) throws IOException, InterruptedException {
             if (node.isNoun() && acc.isEmpty()) {
@@ -137,7 +134,7 @@ public class StepOne {
 
     }
 
-    public static class Reducer1 extends Reducer<Text, Text, Text, Text> {
+    public static class myReducer extends Reducer<Text, Text, Text, Text> {
 
         private File pathsFile;
         private BufferedWriter bufferedWriter;
@@ -256,8 +253,8 @@ public class StepOne {
         conf.set("DPMIN", args[2]);
         Job job = Job.getInstance(conf, "StepOne");
         job.setJarByClass(StepOne.class);
-        job.setMapperClass(Mapper1.class);
-        job.setReducerClass(Reducer1.class);
+        job.setMapperClass(myMapper.class);
+        job.setReducerClass(myReducer.class);
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
         job.setOutputKeyClass(Text.class);

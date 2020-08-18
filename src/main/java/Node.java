@@ -15,8 +15,10 @@ class Node {
     private String dep_label; // stanford dependency
     private int father;
     private List<Node> children;
+    private Stemmer stemmer;
 
-    public Node(String[] args, Stemmer stemmer) {
+    public Node(String[] args) {
+        this.stemmer = new Stemmer();
         stemmer.add(args[0].toCharArray(), args[0].length());
         stemmer.stem();
         this.word = args[0];
@@ -54,19 +56,7 @@ class Node {
     List<Node> getChildren() {
         return children;
     }
-
-
-    public void toPrint() {
-        System.out.print("Node{" +
-                "stemmedWord='" + stemmedWord + '\'' +
-                ", word='" + word + '\'' +
-                ", pos_tag='" + pos_tag + '\'' +
-                ", dep_label='" + dep_label + '\'' +
-                ", father=" + father +
-                ", children=" + children +
-                '}' + "\t");
-    }
-
+    
     @Override
     public String toString() {
         return "Node{" +
