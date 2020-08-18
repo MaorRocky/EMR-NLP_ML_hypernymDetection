@@ -15,6 +15,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.BufferedWriter;
@@ -32,15 +33,11 @@ public class StepOne {
 
     public static class myMapper extends Mapper<LongWritable, Text, Text, Text> {
 
-        public void setup(Context context) throws IOException, InterruptedException {
-        }
-
-        /**
-         * Map a key-value pair.
+        /***
          *
-         * @param key     the line index of the current line of the input file.
-         * @param value   the line contents.
-         * @param context the Map-Reduce job context.
+         * @param key an index of the line in the input
+         * @param value example cease/VB/ccomp/0  for/IN/prep/1  some/DT/det/4  time/NN/pobj/2
+         * @param context
          * @throws IOException
          * @throws InterruptedException
          */
@@ -48,7 +45,7 @@ public class StepOne {
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             String[] components = value.toString().split("\t");
             String ngram = components[1];
-            String[] parts = ngram.split(" "); //syntactic ngrams array example [were/VBD/dep/0, interred/VBN/xcomp/1]
+            String[] parts = ngram.split(" "); //syntactic ngrams array example: [were/VBD/dep/0, interred/VBN/xcomp/1]
             Node[] nodes = getNodes(parts);
             //example:
 //            Node{stemmedWord='squeak', word='squeaks', pos_tag='NNS', dep_label='nsubj', father=1, children=[]}
@@ -58,26 +55,31 @@ public class StepOne {
             searchDependencyPath(root, "", root, context);
         }
 
+
+        private String removeWeirdCharacters(String str) {
+            String REGEX = "[^a-zA-Z ]+";
+            return str.replaceAll(REGEX, "");
+        }
+
         /**
-         * Transforms a biarc into a an array of Nodes
+         * Transforms a biarc array into a an array of Nodes
          *
-         * @param parts an array of Strings, each index being a biarc
+         * @param parts an array of Strings, each String being a biarc
          * @return an array of Nodes, each one containing a biarc in an accessible container.
          */
         private Node[] getNodes(String[] parts) {
             Node[] partsAsNodes = new Node[parts.length];
-            String REGEX = "[^a-zA-Z ]+";
             for (int i = 0; i < parts.length; i++) {
                 String[] ngramEntryComponents = parts[i].split("/");
                 //example [employer, NN, nsubj, 1]
                 if (ngramEntryComponents.length != 4) {
                     return null;
                 }
-                ngramEntryComponents[0] = ngramEntryComponents[0].replaceAll(REGEX, "");
-                if (ngramEntryComponents[0].replaceAll(REGEX, "").equals(""))
+                ngramEntryComponents[0] = removeWeirdCharacters(ngramEntryComponents[0]);
+                if (ngramEntryComponents[0].equals(""))
                     return null;
-                ngramEntryComponents[1] = ngramEntryComponents[1].replaceAll(REGEX, "");
-                if (ngramEntryComponents[1].replaceAll(REGEX, "").equals(""))
+                ngramEntryComponents[1] = removeWeirdCharacters(ngramEntryComponents[1]);
+                if (ngramEntryComponents[1].equals(""))
                     return null;
                 partsAsNodes[i] = new Node(ngramEntryComponents);
             }
@@ -86,7 +88,6 @@ public class StepOne {
 
         /**
          * Transforms an array of Nodes into a tree, which represents the dependencies defined in the original biarc.
-         *
          * @param nodes an array of Nodes.
          * @return the root of the tree.
          */
@@ -110,20 +111,17 @@ public class StepOne {
          * @param context   the Map-Reduce job context.
          * @throws IOException
          * @throws InterruptedException
-         * @a a is: NN:IN:NN
-         * @b b is: c$reason
+         * @a a is: NN:IN:NN for example
+         * @b b is: c$reason for example
          */
         private void searchDependencyPath(Node node, String acc, Node pathStart, Context context) throws IOException, InterruptedException {
             if (node.isNoun() && acc.isEmpty()) {
-//                System.out.printf("word: %s , size: %d\n", node.getWord(), node.getChildren().size());
                 for (Node child : node.getChildren()) {
                     searchDependencyPath(child, node.getDepencdencyPathComponent(), node, context);
                 }
             } else if (node.isNoun()) {
                 Text a = new Text(acc + ":" + node.getDepencdencyPathComponent());
                 Text b = new Text(pathStart.getStemmedWord() + "$" + node.getStemmedWord());
-                /*System.out.printf("a is: %s\n", a.toString());
-                System.out.printf("b is: %s\n", b.toString());*/
                 context.write(a, b);
                 searchDependencyPath(node, "", node, context);
             } else { // node isn't noun, but the accumulator isn't empty if it is empty the for will run 0 times
@@ -131,7 +129,6 @@ public class StepOne {
                     searchDependencyPath(child, acc.isEmpty() ? acc : acc + ":" + node.getDepencdencyPathComponent(), pathStart, context);
             }
         }
-
     }
 
     public static class myReducer extends Reducer<Text, Text, Text, Text> {
@@ -236,20 +233,21 @@ public class StepOne {
                     System.out.println("Error Message: " + ace.getMessage());
                 }
             }
-
         }
-
     }
 
 
     public static void main(String[] args) throws Exception {
         //TODO remove this line
-        deleteDirectory(new File("/home/maor/Desktop/dsp3/output"));
         if (args.length != 4)
             throw new IOException("step one: supply 4 arguments");
         System.out.println("DPmin is set to: " + Integer.parseInt(args[2]));
         Configuration conf = new Configuration();
         conf.set("LOCAL_OR_EMR", String.valueOf(args[3].equals("local")));
+        if (conf.get("LOCAL_OR_EMR").equals("true")) {
+            deleteDirectory(new File("/home/maor/Desktop/dsp3/output"));
+        }
+
         conf.set("DPMIN", args[2]);
         Job job = Job.getInstance(conf, "StepOne");
         job.setJarByClass(StepOne.class);
@@ -260,6 +258,7 @@ public class StepOne {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         job.setNumReduceTasks(1);
+
         //for using littleinput
 //        SequenceFileInputFormat.addInputPath(job, new Path(args[0]));
         //TODO
@@ -283,6 +282,4 @@ public class StepOne {
         }
         directoryToBeDeleted.delete();
     }
-
-
 }

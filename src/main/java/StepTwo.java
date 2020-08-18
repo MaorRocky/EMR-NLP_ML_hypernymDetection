@@ -182,10 +182,12 @@ public class StepTwo {
     public static void main(String[] args) throws Exception {
         if (args.length != 3)
             throw new IOException("Phase 2: supply 3 arguments");
-        deleteDirectory(new File("/home/maor/Desktop/dsp3/output_step2"));
 
         Configuration conf = new Configuration();
         conf.set("LOCAL_OR_EMR", String.valueOf(args[2].equals("local")));
+        if (conf.get("LOCAL_OR_EMR").equals("local")) {
+            deleteDirectory(new File("/home/maor/Desktop/dsp3/output_step2"));
+        }
         Job job = Job.getInstance(conf, "Phase 2");
         job.setJarByClass(StepTwo.class);
         job.setMapperClass(Mapper2.class);
