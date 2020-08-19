@@ -46,7 +46,7 @@ public class Main {
                     .withArgs("s3n://dsps162assignment3benasaf/input2", "hdfs:///intermediate/", args[0], "emr");
 
             StepConfig step1Config = new StepConfig()
-                    .withName("Phase 1")
+                    .withName("Step 1")
                     .withHadoopJarStep(jarStep1)
                     .withActionOnFailure("TERMINATE_JOB_FLOW");
 
@@ -56,7 +56,7 @@ public class Main {
                     .withArgs("hdfs:///intermediate/", "s3n://dsps162assignment3benasaf/output_single_corpus", "emr");
 
             StepConfig step2Config = new StepConfig()
-                    .withName("Phase 2")
+                    .withName("Step 2")
                     .withHadoopJarStep(jarStep2)
                     .withActionOnFailure("TERMINATE_JOB_FLOW");
 

@@ -1,5 +1,9 @@
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
+import weka.classifiers.rules.JRip;
+import weka.classifiers.rules.M5Rules;
+import weka.classifiers.rules.ZeroR;
 import weka.classifiers.trees.J48;
 import weka.core.Debug;
 import weka.core.Instances;

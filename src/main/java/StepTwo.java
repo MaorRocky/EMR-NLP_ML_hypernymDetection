@@ -119,10 +119,10 @@ public class StepTwo {
             stemmer = new Stemmer();
             boolean local = context.getConfiguration().get("LOCAL_OR_EMR").equals("true");
             Scanner scanner;
-            BufferedReader bufferedReader;
+            BufferedReader bufferedReader_hypernymList;
             if (local) {
                 scanner = new Scanner(new FileReader(NUM_OF_FEATURES_FILE));
-                bufferedReader = new BufferedReader(new FileReader(HYPERNYM_LIST));
+                bufferedReader_hypernymList = new BufferedReader(new FileReader(HYPERNYM_LIST));
             } else {
                 s3 = new AmazonS3Client();
                 Region usEast1 = Region.getRegion(Regions.US_EAST_1);
@@ -132,14 +132,14 @@ public class StepTwo {
                 System.out.println("Done");
                 scanner = new Scanner(new InputStreamReader(object.getObjectContent()));
                 object = s3.getObject(new GetObjectRequest(BUCKET, HYPERNYM_LIST));
-                bufferedReader = new BufferedReader(new InputStreamReader(object.getObjectContent()));
+                bufferedReader_hypernymList = new BufferedReader(new InputStreamReader(object.getObjectContent()));
             }
             numOfFeatures = scanner.nextInt();
             System.out.println("Number of features: " + numOfFeatures);
             scanner.close();
             testSet = new HashMap<>();
             String line;
-            while ((line = bufferedReader.readLine()) != null) {
+            while ((line = bufferedReader_hypernymList.readLine()) != null) {
                 String[] pieces = line.split("\\s");
                 stemmer.add(pieces[0].toCharArray(), pieces[0].length());
                 stemmer.stem();
@@ -149,7 +149,7 @@ public class StepTwo {
                 pieces[1] = stemmer.toString();
                 testSet.put(pieces[0] + "$" + pieces[1], pieces[2].equals("True"));
             }
-            bufferedReader.close();
+            bufferedReader_hypernymList.close();
         }
 
         /**
@@ -200,13 +200,13 @@ public class StepTwo {
         job.setNumReduceTasks(1);
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.out.println("Phase 2 - input path: " + args[0] + ", output path: " + args[1]);
+        System.out.println("Step 2 - input path: " + args[0] + ", output path: " + args[1]);
         if (job.waitForCompletion(true))
-            System.out.println("Phase 2: job completed successfully");
+            System.out.println("Step 2: job completed successfully");
         else
-            System.out.println("Phase 2: job completed unsuccessfully");
+            System.out.println("Step 2: job completed unsuccessfully");
         Counter counter = job.getCounters().findCounter("org.apache.hadoop.mapreduce.TaskCounter", "REDUCE_INPUT_RECORDS");
-        System.out.println("Number of key-value pairs sent to reducers in phase 2: " + counter.getValue());
+        System.out.println("Number of key-value pairs sent to reducers in step 2: " + counter.getValue());
     }
 
     static void deleteDirectory(File directoryToBeDeleted) {

@@ -45,7 +45,7 @@ public class StepOne {
             String[] components = value.toString().split("\t");
             String ngram = components[1];
             String[] parts = ngram.split(" "); //syntactic ngrams array example: [were/VBD/dep/0, interred/VBN/xcomp/1]
-            Node[] nodes = getNodes(parts);
+            Node[] nodes = createNodes(parts);
             //example:
 //            Node{stemmedWord='squeak', word='squeaks', pos_tag='NNS', dep_label='nsubj', father=1, children=[]}
             if (nodes == null)
@@ -66,7 +66,7 @@ public class StepOne {
          * @param parts an array of Strings, each String being a biarc
          * @return an array of Nodes, each one containing a biarc in an accessible container.
          */
-        private Node[] getNodes(String[] parts) {
+        private Node[] createNodes(String[] parts) {
             Node[] partsAsNodes = new Node[parts.length];
             for (int i = 0; i < parts.length; i++) {
                 String[] ngramEntryComponents = parts[i].split("/");
@@ -129,6 +129,7 @@ public class StepOne {
             }
         }
     }
+
 
     public static class myReducer extends Reducer<Text, Text, Text, Text> {
 
@@ -263,13 +264,13 @@ public class StepOne {
         //TODO
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.out.println("Phase 1 - input path: " + args[0] + ", output path: " + args[1]);
+        System.out.println("Step 1 - input path: " + args[0] + ", output path: " + args[1]);
         if (job.waitForCompletion(true))
-            System.out.println("Phase 1: job completed successfully");
+            System.out.println("Step 1: job completed successfully");
         else
-            System.out.println("Phase 1: job completed unsuccessfully");
+            System.out.println("Step 1: job completed unsuccessfully");
         Counter counter = job.getCounters().findCounter("org.apache.hadoop.mapreduce.TaskCounter", "REDUCE_INPUT_RECORDS");
-        System.out.println("Number of key-value pairs sent to reducers in phase 1: " + counter.getValue());
+        System.out.println("Number of key-value pairs sent to reducers in step 1: " + counter.getValue());
     }
 
     static void deleteDirectory(File directoryToBeDeleted) {
