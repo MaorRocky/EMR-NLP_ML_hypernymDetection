@@ -24,7 +24,7 @@ public class Main {
             StepOne.main(stepOneArgs);
             StepTwo.main(stepTwoArgs);
             String[] postProcessorArgs = {args[1]};
-            PostProcessor.main(postProcessorArgs);
+            wekaScriptGenerator.main(postProcessorArgs);
         } else {
             // EMR setup. This is the main intent of this app.
             AWSCredentials credentials;

@@ -18,7 +18,6 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -26,7 +25,7 @@ import java.util.Scanner;
 public class StepTwo {
 
 
-    public static class Mapper2 extends Mapper<LongWritable, Text, Text, WritableLongPair> {
+    public static class myMapper extends Mapper<LongWritable, Text, Text, WritableLongPair> {
 
         //example (c$dror , NN:NN)
         private WritableLongPair count;
@@ -98,7 +97,7 @@ public class StepTwo {
 
     }
 
-    public static class Reducer2 extends Reducer<Text, WritableLongPair, Text, Text> {
+    public static class myReducer extends Reducer<Text, WritableLongPair, Text, Text> {
 
         private HashMap<String, Boolean> testSet;
         private final String BUCKET = "dsps3maorrocky";
@@ -186,13 +185,13 @@ public class StepTwo {
         Configuration conf = new Configuration();
         conf.set("LOCAL_OR_EMR", String.valueOf(args[2].equals("local")));
         if (args[2].equals("local")) {
-            System.out.println("deleting "+args[1]+" directory");
+            System.out.println("deleting " + args[1] + " directory");
             deleteDirectory(new File("/home/maor/Desktop/dsp3/output_step2"));
         }
         Job job = Job.getInstance(conf, "Phase 2");
         job.setJarByClass(StepTwo.class);
-        job.setMapperClass(Mapper2.class);
-        job.setReducerClass(Reducer2.class);
+        job.setMapperClass(myMapper.class);
+        job.setReducerClass(myReducer.class);
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(WritableLongPair.class);
         job.setOutputKeyClass(Text.class);

@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 
-public class PostProcessor {
+public class wekaScriptGenerator {
 
     private static final String PREFIX1 = "@RELATION nounpair\n\n";
     private static final String PREFIX2 = "@RELATION nounpair\n\n@ATTRIBUTE nounPair STRING\n";
@@ -19,7 +19,7 @@ public class PostProcessor {
 
     public static void main(String[] args) throws IOException {
         if (!args[0].equals("local") && !args[0].equals("emr")) {
-            System.err.println("Usage: java PostProcessor <DPmin> [local | emr]");
+            System.err.println("Usage: java wekaScriptGenerator <DPmin> [local | emr]");
             System.exit(1);
         }
         java.nio.file.Path path = Paths.get("classifier_input");
