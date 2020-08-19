@@ -1,4 +1,3 @@
-/*
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
@@ -9,8 +8,9 @@ import com.amazonaws.services.elasticmapreduce.model.*;
 
 
 public class Main {
-    public static void main(String[] args) {
 
+
+    public static void main(String[] args) throws Exception {
         if (!args[1].equals("local") && !args[1].equals("emr")) {
             System.err.println("Usage: java HDetector <DPmin> [local | emr]");
             System.exit(1);
@@ -18,15 +18,16 @@ public class Main {
 
         if (args[1].equals("local")) {
             // Local machine, single node setup. Used in order to debug the M-R logic.
-            String[] p1args = {"input", "intermediate", args[0], "local"};
-            String[] p2args = {"intermediate", "output", "local"};
-            StepOne.main(p1args);
-            StepTwo.main(p2args);
-            String[] ppargs = {args[1]};
-            PostProcessor.main(ppargs);
+//            String[] stepOneArgs = {"input", "intermediate", args[0], "local"};
+            String[] stepOneArgs = {"/home/maor/Desktop/dsp3/src/main/resources/biarcs.00-of-99.gz", "output_step1", args[0], "local"};
+            String[] stepTwoArgs = {"/home/maor/Desktop/dsp3/output_step1/part-r-00000", "output_step2", "local"};
+            StepOne.main(stepOneArgs);
+            StepTwo.main(stepTwoArgs);
+            String[] postProcessorArgs = {args[1]};
+            PostProcessor.main(postProcessorArgs);
         } else {
             // EMR setup. This is the main intent of this app.
-            AWSCredentials credentials = null;
+            AWSCredentials credentials;
             try {
                 credentials = new ProfileCredentialsProvider().getCredentials();
             } catch (Exception e) {
@@ -83,6 +84,7 @@ public class Main {
             String jobFlowId = runJobFlowResult.getJobFlowId();
             System.out.println("Ran job flow with id: " + jobFlowId);
         }
+
     }
+
 }
-*/

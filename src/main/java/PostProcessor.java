@@ -29,7 +29,7 @@ public class PostProcessor {
         BufferedReader br1, br2;
         BufferedWriter bw1, bw2, bwcopy = null;
         if (local) {
-            br1 = new BufferedReader(new FileReader("output/part-r-00000"));
+            br1 = new BufferedReader(new FileReader("output_step2/part-r-00000"));
             br2 = new BufferedReader(new FileReader("resource/numOfFeatures.txt"));
         } else {
             AmazonS3 s3 = new AmazonS3Client();

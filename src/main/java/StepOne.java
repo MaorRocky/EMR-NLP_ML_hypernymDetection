@@ -244,7 +244,7 @@ public class StepOne {
         Configuration conf = new Configuration();
         conf.set("LOCAL_OR_EMR", String.valueOf(args[3].equals("local")));
         if (conf.get("LOCAL_OR_EMR").equals("true")) {
-            deleteDirectory(new File("/home/maor/Desktop/dsp3/output"));
+            deleteDirectory(new File("/home/maor/Desktop/dsp3/output_step1"));
         }
 
         conf.set("DPMIN", args[2]);

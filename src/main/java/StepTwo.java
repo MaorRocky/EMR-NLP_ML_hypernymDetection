@@ -185,7 +185,8 @@ public class StepTwo {
 
         Configuration conf = new Configuration();
         conf.set("LOCAL_OR_EMR", String.valueOf(args[2].equals("local")));
-        if (conf.get("LOCAL_OR_EMR").equals("local")) {
+        if (args[2].equals("local")) {
+            System.out.println("deleting "+args[1]+" directory");
             deleteDirectory(new File("/home/maor/Desktop/dsp3/output_step2"));
         }
         Job job = Job.getInstance(conf, "Phase 2");
