@@ -45,7 +45,7 @@ class Node {
         return father;
     }
 
-    String getDepencdencyPathComponent() {
+    String posTag() {
         return pos_tag;
     }
 
@@ -56,7 +56,7 @@ class Node {
     List<Node> getChildren() {
         return children;
     }
-    
+
     @Override
     public String toString() {
         return "Node{" +

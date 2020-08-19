@@ -15,7 +15,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.BufferedWriter;
@@ -52,7 +51,7 @@ public class StepOne {
             if (nodes == null)
                 return;
             Node root = constructParsedTree(nodes);
-            searchDependencyPath(root, "", root, context);
+            findDP(root, root,"", context);
         }
 
 
@@ -114,19 +113,19 @@ public class StepOne {
          * @a a is: NN:IN:NN for example
          * @b b is: c$reason for example
          */
-        private void searchDependencyPath(Node node, String acc, Node pathStart, Context context) throws IOException, InterruptedException {
-            if (node.isNoun() && acc.isEmpty()) {
+        private void findDP(Node node, Node pathStart, String acc,  Context context) throws IOException, InterruptedException {
+            if (acc.isEmpty() && node.isNoun()) {
                 for (Node child : node.getChildren()) {
-                    searchDependencyPath(child, node.getDepencdencyPathComponent(), node, context);
+                    findDP(child, node, node.posTag(), context);
                 }
             } else if (node.isNoun()) {
-                Text a = new Text(acc + ":" + node.getDepencdencyPathComponent());
-                Text b = new Text(pathStart.getStemmedWord() + "$" + node.getStemmedWord());
-                context.write(a, b);
-                searchDependencyPath(node, "", node, context);
+                Text valWords = new Text(pathStart.getStemmedWord() + "$" + node.getStemmedWord());
+                Text keyPath = new Text(acc + ":" + node.posTag());
+                context.write(keyPath, valWords);
+                findDP(node, node, "", context);
             } else { // node isn't noun, but the accumulator isn't empty if it is empty the for will run 0 times
                 for (Node child : node.getChildren())
-                    searchDependencyPath(child, acc.isEmpty() ? acc : acc + ":" + node.getDepencdencyPathComponent(), pathStart, context);
+                    findDP(child, pathStart, acc.isEmpty() ? acc : acc + ":" + node.posTag(), context);
             }
         }
     }
