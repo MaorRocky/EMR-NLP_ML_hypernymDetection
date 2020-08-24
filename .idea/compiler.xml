@@ -6,7 +6,8 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="dsp3" />
+        <module name="StepTwo_module" />
+        <module name="StepOne_module" />
       </profile>
     </annotationProcessing>
   </component>

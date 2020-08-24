@@ -8,6 +8,7 @@ import com.amazonaws.services.elasticmapreduce.model.*;
 
 
 public class Main {
+    private static final String BucketURL = "s3://dsps3maorrocky/";
 
 
     public static void main(String[] args) throws Exception {
@@ -41,9 +42,10 @@ public class Main {
             AmazonElasticMapReduce mapReduce = new AmazonElasticMapReduceClient(credentials);
 
             HadoopJarStepConfig jarStep1 = new HadoopJarStepConfig()
-                    .withJar("s3n://dsps162assignment3benasaf/jars/HDetector.jar")
-                    .withMainClass("Phase1")
-                    .withArgs("s3n://dsps162assignment3benasaf/input2", "hdfs:///intermediate/", args[0], "emr");
+                    .withJar("s3://dsps3maorrocky/StepOne_module.jar")
+                    .withMainClass("StepOne")
+//                    .withArgs("s3://dsps3maorrocky/biarcs.00-of-99.gz", "s3://dsps3maorrocky/biarcs.08-of-99.gz", BucketURL + "output_step1_emr", args[0], "emr");
+                    .withArgs("s3://dsps3maorrocky/biarcs.08-of-99.gz",  BucketURL + "output_step1_emr", args[0], "emr");
 
             StepConfig step1Config = new StepConfig()
                     .withName("Step 1")
@@ -51,9 +53,9 @@ public class Main {
                     .withActionOnFailure("TERMINATE_JOB_FLOW");
 
             HadoopJarStepConfig jarStep2 = new HadoopJarStepConfig()
-                    .withJar("s3n://dsps162assignment3benasaf/jars/HDetector.jar")
-                    .withMainClass("Phase2")
-                    .withArgs("hdfs:///intermediate/", "s3n://dsps162assignment3benasaf/output_single_corpus", "emr");
+                    .withJar("s3://dsps3maorrocky/StepTwo_module.jar")
+                    .withMainClass("StepTwo")
+                    .withArgs(BucketURL + "output_step1_emr", "s3n://dsps3maorrocky/output_single_corpus", "emr");
 
             StepConfig step2Config = new StepConfig()
                     .withName("Step 2")
@@ -62,10 +64,10 @@ public class Main {
 
             JobFlowInstancesConfig instances = new JobFlowInstancesConfig()
                     .withInstanceCount(5)
-                    .withMasterInstanceType(InstanceType.M1Medium.toString())
-                    .withSlaveInstanceType(InstanceType.M1Medium.toString())
+                    .withMasterInstanceType(InstanceType.M4Large.toString())
+                    .withSlaveInstanceType(InstanceType.M4Large.toString())
                     .withHadoopVersion("2.7.2")
-                    .withEc2KeyName("AWS")
+                    .withEc2KeyName("maor_dsp202")
                     .withKeepJobFlowAliveWhenNoSteps(false)
                     .withPlacement(new PlacementType("us-east-1a"));
 
@@ -73,10 +75,11 @@ public class Main {
                     .withName("extract-hypernyms")
                     .withInstances(instances)
                     .withSteps(step1Config, step2Config)
-                    .withJobFlowRole("EMR_EC2_DefaultRole")
+//                    .withSteps(step2Config)
                     .withServiceRole("EMR_DefaultRole")
-                    .withReleaseLabel("emr-4.7.0")
-                    .withLogUri("s3n://dsps162assignment3benasaf/logs/")
+                    .withJobFlowRole("EMR_EC2_DefaultRole")
+                    .withReleaseLabel("emr-5.11.0")
+                    .withLogUri("s3n://dsps3maorrocky/logs/")
                     .withBootstrapActions();
 
             System.out.println("Submitting the JobFlow Request to Amazon EMR and running it...");

@@ -5,18 +5,15 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import org.apache.hadoop.mapreduce.Counter;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
-
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.BufferedWriter;
@@ -53,7 +50,7 @@ public class StepOne {
             if (nodes == null)
                 return;
             Node root = constructParsedTree(nodes);
-            findDP(root, root, "", context);
+            findDP(root, root,"", context);
         }
 
 
@@ -89,7 +86,6 @@ public class StepOne {
 
         /**
          * Transforms an array of Nodes into a tree, which represents the dependencies defined in the original biarc.
-         *
          * @param nodes an array of Nodes.
          * @return the root of the tree.
          */
@@ -116,7 +112,7 @@ public class StepOne {
          * @a a is: NN:IN:NN for example
          * @b b is: c$reason for example
          */
-        private void findDP(Node node, Node pathStart, String acc, Context context) throws IOException, InterruptedException {
+        private void findDP(Node node, Node pathStart, String acc,  Context context) throws IOException, InterruptedException {
             if (acc.isEmpty() && node.isNoun()) {
                 for (Node child : node.getChildren()) {
                     findDP(child, node, node.posTag(), context);
@@ -266,12 +262,6 @@ public class StepOne {
 //        SequenceFileInputFormat.addInputPath(job, new Path(args[0]));
         //TODO
         FileInputFormat.addInputPath(job, new Path(args[0]));
-
-/*
-        MultipleInputs.addInputPath(job, new Path(args[0]), TextInputFormat.class, myMapper.class);
-        MultipleInputs.addInputPath(job, new Path(args[1]), TextInputFormat.class, myMapper.class);
-*/
-
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.out.println("Step 1 - input path: " + args[0] + ", output path: " + args[1]);
         if (job.waitForCompletion(true))
