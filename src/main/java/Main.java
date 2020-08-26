@@ -45,7 +45,7 @@ public class Main {
                     .withJar("s3://dsps3maorrocky/StepOne_module.jar")
                     .withMainClass("StepOne")
 //                    .withArgs("s3://dsps3maorrocky/biarcs.00-of-99.gz", "s3://dsps3maorrocky/biarcs.08-of-99.gz", BucketURL + "output_step1_emr", args[0], "emr");
-                    .withArgs("s3://dsps3maorrocky/biarcs.08-of-99.gz",  BucketURL + "output_step1_emr", args[0], "emr");
+                    .withArgs("s3://dsps3maorrocky/biarcs.00-of-99.gz",  BucketURL + "output_step1_emr", args[0], "emr");
 
             StepConfig step1Config = new StepConfig()
                     .withName("Step 1")
@@ -75,7 +75,6 @@ public class Main {
                     .withName("extract-hypernyms")
                     .withInstances(instances)
                     .withSteps(step1Config, step2Config)
-//                    .withSteps(step2Config)
                     .withServiceRole("EMR_DefaultRole")
                     .withJobFlowRole("EMR_EC2_DefaultRole")
                     .withReleaseLabel("emr-5.11.0")
